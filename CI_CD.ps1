@@ -25,3 +25,30 @@ function Commit-And-Push($commitMessage) {
 
 # Call the function with your commit message
 Commit-And-Push $commitMessage
+
+
+# Upload files to FTP server
+$ftpServer = "10.8.0.10"
+$userName = "waterleak"
+$password = "waterleak"
+
+$files = Get-ChildItem -Path . -Exclude venv -File
+
+foreach ($file in $files) {
+    $ftpPath = "ftp://$ftpServer/$file"
+    $localPath = $file.FullName
+
+    $ftpRequest = [System.Net.FtpWebRequest]::Create($ftpPath)
+    $ftpRequest.Credentials = New-Object System.Net.NetworkCredential($userName, $password)
+    $ftpRequest.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+
+    $fileContent = [System.IO.File]::ReadAllBytes($localPath)
+    $ftpRequest.ContentLength = $fileContent.Length
+
+    $ftpStream = $ftpRequest.GetRequestStream()
+    $ftpStream.Write($fileContent, 0, $fileContent.Length)
+
+    $ftpStream.Close()
+}
+
+Write-Host "Files uploaded successfully!"
