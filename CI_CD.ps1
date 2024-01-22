@@ -3,6 +3,9 @@ param (
     [string]$commitMessage
 )
 
+
+Import-Module -Name Posh-SSH
+
 function Commit-And-Push($commitMessage) {
     # Run the test.py file
     python test.py
