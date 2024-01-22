@@ -71,8 +71,8 @@ $commands = @(
     'sudo pgrep -f "gunicorn -w 1 -b 10.8.0.10:8444 Prod_Profile_API:app" | sudo xargs kill',
     'sudo pgrep -f "gunicorn -w 1 -b 10.8.0.10:8445 Prod_Waterdata_API:app" | sudo xargs kill',
     'sudo pgrep -f "gunicorn -w 1 -b 10.8.0.10:8443 Prod_Login_API:app" | sudo xargs kill',
-    'gunicorn -w 1 -b 10.8.0.10:8443 Prod_Login_API:app &',
-    'gunicorn -w 1 -b 10.8.0.10:8445 Prod_Waterdata_API:app &',
+    'gunicorn -w 1 -b 10.8.0.10:8443 Prod_Login_API:app',
+    'gunicorn -w 1 -b 10.8.0.10:8445 Prod_Waterdata_API:app',
     'gunicorn -w 1 -b 10.8.0.10:8444 Prod_Profile_API:app'
 )
 
