@@ -61,7 +61,7 @@ $remoteServer = "10.8.0.10"
 $userName = "waterleak"
 $password = "waterleak"
 
-$session = New-SSHSession -ComputerName $remoteServer -Credential (New-Object System.Management.Automation.PSCredential ($userName, (ConvertTo-SecureString $password -AsPlainText -Force))) -KeyFile "/path/to/private/key"
+$session = New-SSHSession -ComputerName $remoteServer -Credential (New-Object System.Management.Automation.PSCredential ($userName, (ConvertTo-SecureString $password -AsPlainText -Force)))
 
 Invoke-SSHCommand -SessionId $session.SessionId -Command "find /home/waterleak -type f -exec sed -i 's/10\.8\.0\.4/10.8.0.10/g' {} +"
 
