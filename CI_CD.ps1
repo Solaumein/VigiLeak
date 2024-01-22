@@ -67,28 +67,6 @@ $remoteServer = "10.8.0.10"
 $userName = "waterleak"
 $password = "waterleak"
 
-$session = New-SSHSession -ComputerName $remoteServer -Credential (New-Object System.Management.Automation.PSCredential ($userName, (ConvertTo-SecureString $password -AsPlainText -Force)))
-
-Invoke-SSHCommand -SessionId $session.SessionId -Command "find /home/waterleak -type f -exec sed -i 's/10\.8\.0\.4/10.8.0.10/g' {} +"
-
-
-Remove-SSHSession -SessionId $session.SessionId
-
-# Define SSH connection parameters
-$sshParams = @{
-    HostName  = '10.8.0.10'
-    UserName  = 'waterleak'
-    Port      = 22
-}
-
-# Specify the password
-$password = ConvertTo-SecureString 'waterleak' -AsPlainText -Force
-$sshParams.SSHConnection = New-SSHConnection -Index 0 -HostName $sshParams.HostName -Port $sshParams.Port -Credential (New-Object System.Management.Automation.PSCredential ($sshParams.UserName, $password))
-
-# Establish SSH connection
-$session = New-SSHSession @sshParams
-
-# Define commands to be executed
 $commands = @(
     'sudo pgrep -f "gunicorn -w 1 -b 10.8.0.10:8444 Prod_Profile_API:app" | sudo xargs kill',
     'sudo pgrep -f "gunicorn -w 1 -b 10.8.0.10:8445 Prod_Waterdata_API:app" | sudo xargs kill',
@@ -98,10 +76,13 @@ $commands = @(
     'gunicorn -w 1 -b 10.8.0.10:8444 Prod_Profile_API:app'
 )
 
-# Execute commands on the remote server
+$session = New-SSHSession -ComputerName $remoteServer -Credential (New-Object System.Management.Automation.PSCredential ($userName, (ConvertTo-SecureString $password -AsPlainText -Force)))
+
+Invoke-SSHCommand -SessionId $session.SessionId -Command "find /home/waterleak -type f -exec sed -i 's/10\.8\.0\.4/10.8.0.10/g' {} +"
 foreach ($command in $commands) {
     Invoke-SSHCommand -SessionId $session.SessionId -Command $command
 }
+
 
 # Close SSH session
 Remove-SSHSession -SessionId $session.SessionId
