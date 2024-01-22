@@ -78,11 +78,12 @@ Remove-SSHSession -SessionId $session.SessionId
 $sshParams = @{
     HostName  = '10.8.0.10'
     UserName  = 'waterleak'
-    Password  = 'waterleak'
     Port      = 22
-    SshHost   = $true
-    AcceptKey = $true
 }
+
+# Specify the password
+$password = ConvertTo-SecureString 'waterleak' -AsPlainText -Force
+$sshParams.SSHConnection = New-SSHConnection -Index 0 -HostName $sshParams.HostName -Port $sshParams.Port -Credential (New-Object System.Management.Automation.PSCredential ($sshParams.UserName, $password))
 
 # Establish SSH connection
 $session = New-SSHSession @sshParams
