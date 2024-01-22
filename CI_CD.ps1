@@ -71,12 +71,36 @@ $session = New-SSHSession -ComputerName $remoteServer -Credential (New-Object Sy
 
 Invoke-SSHCommand -SessionId $session.SessionId -Command "find /home/waterleak -type f -exec sed -i 's/10\.8\.0\.4/10.8.0.10/g' {} +"
 
-Invoke-SSHCommand -SessionId $session.SessionId -Command 'sudo pgrep -f "gunicorn -w 1 -b 10.8.0.10:8444 Prod_Profile_API:app" | sudo xargs kill'
-Invoke-SSHCommand -SessionId $session.SessionId -Command 'sudo pgrep -f \"gunicorn -w 1 -b 10.8.0.10:8445 Prod_Waterdata_API:app\" | sudo xargs kill'
-Invoke-SSHCommand -SessionId $session.SessionId -Command 'sudo pgrep -f \"gunicorn -w 1 -b 10.8.0.10:8443 Prod_Login_API:app\" | sudo xargs kill'
-Invoke-SSHCommand -SessionId $session.SessionId -Command 'sudo gunicorn -w 1 -b 10.8.0.10:8443 Prod_Login_API:app &'
-Invoke-SSHCommand -SessionId $session.SessionId -Command 'sudo gunicorn -w 1 -b 10.8.0.10:8445 Prod_Waterdata_API:app &'
-Invoke-SSHCommand -SessionId $session.SessionId -Command 'sudo gunicorn -w 1 -b 10.8.0.10:8444 Prod_Profile_API:app &'
 
+Remove-SSHSession -SessionId $session.SessionId
 
+# Define SSH connection parameters
+$sshParams = @{
+    HostName  = '10.8.0.10'
+    UserName  = 'waterleak'
+    Password  = 'waterleak'
+    Port      = 22
+    SshHost   = $true
+    AcceptKey = $true
+}
+
+# Establish SSH connection
+$session = New-SSHSession @sshParams
+
+# Define commands to be executed
+$commands = @(
+    'sudo pgrep -f "gunicorn -w 1 -b 10.8.0.10:8444 Prod_Profile_API:app" | sudo xargs kill',
+    'sudo pgrep -f "gunicorn -w 1 -b 10.8.0.10:8445 Prod_Waterdata_API:app" | sudo xargs kill',
+    'sudo pgrep -f "gunicorn -w 1 -b 10.8.0.10:8443 Prod_Login_API:app" | sudo xargs kill',
+    'gunicorn -w 1 -b 10.8.0.10:8443 Prod_Login_API:app &',
+    'gunicorn -w 1 -b 10.8.0.10:8445 Prod_Waterdata_API:app &',
+    'gunicorn -w 1 -b 10.8.0.10:8444 Prod_Profile_API:app'
+)
+
+# Execute commands on the remote server
+foreach ($command in $commands) {
+    Invoke-SSHCommand -SessionId $session.SessionId -Command $command
+}
+
+# Close SSH session
 Remove-SSHSession -SessionId $session.SessionId
