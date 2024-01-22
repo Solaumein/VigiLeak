@@ -4,7 +4,6 @@ import hashlib
 import mysql.connector
 from flask_cors import CORS
 from flask import Flask, request, jsonify
-from login_API import login_api_routes
 
 import jwt
 
@@ -28,7 +27,7 @@ waterleak_db = connexion_waterleak_db.cursor()
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = 'JKJKGU57I7IU8hihuityuioIUY8OKKIUJHUIIUG22?FLDSKFNSKNGKJKSKNjkpghlkJHJkjhGHJjGJfhjruikYUKRTetrhJBkjvxddZè'  # Changez ceci pour une clé secrète réelle
-app.register_blueprint(login_api_routes)
+#app.register_blueprint(login_api_routes)
 
 
 # Endpoint to get all tasks

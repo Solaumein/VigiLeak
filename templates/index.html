@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Détection de Fuite d'Eau</title>
+  <style>
+    /* Ajoutez vos styles CSS ici */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100vh;
+      background-color: #e6f7ff; /* couleur légère pour thème de l'eau */
+    }
+    .navbar {
+      background-color: #004d66; /* couleur foncée pour contraste */
+      overflow: hidden;
+      color: white;
+      position: absolute;
+      width: 100%;
+      top: 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* ombre pour donner de la profondeur */
+    }
+    .navbar a {
+      float: left;
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      transition: background-color 0.3s; /* transition pour hover */
+    }
+    .navbar a:hover {
+      background-color: #007399; /* couleur légèrement différente au survol */
+    }
+    .container {
+      text-align: center;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .title {
+      color: #005c73; /* couleur qui rappelle le thème de l'eau */
+      margin-bottom: 20px;
+    }
+    .button {
+      background-color: #007399;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 5px; /* bordures arrondies */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* ombre pour donner de la profondeur */
+    }
+    .button:hover {
+      background-color: #008fb3; /* couleur au survol */
+    }
+    .graph-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px; /* espace entre les images */
+    }
+    .graph-container img {
+      width: 100px; /* taille fixe pour les images */
+      height: 100px; /* hauteur fixe pour les images */
+      border: 1px solid #007399; /* bordure pour délimiter les graphiques */
+      padding: 10px;
+      background-color: white; /* fond blanc pour les images */
+      border-radius: 5px; /* bordures arrondies */
+    }
+    #waterConsumptionChart {
+      width: 70%; /* Taille maximale du graphique */
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <a href="https://api.vigileak.obrulez.fr/dashboard">HOME</a>
+    <a href="https://api.vigileak.obrulez.fr/profile">PROFIL</a>
+    <a id="logoutButton">Déconnexion</a>
+  </div>
+
+  <div class="container">
+    <h2 class="title">Consommation d'eau</h2>
+    <canvas id="waterConsumptionChart"></canvas> <!-- Taille contrôlée par CSS -->
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Fonction pour générer le graphique
+    function generateChart(data) {
+      const ctx = document.getElementById('waterConsumptionChart').getContext('2d');
+      const labels = data.map(entry => new Date(entry.date_heure).toLocaleTimeString());
+      const waterData = data.map(entry => entry.water);
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Consommation d\'eau (L)',
+            data: waterData,
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    function fetchDataAndGenerateChart() {
+      fetch('https://api.vigileak.obrulez.fr/get-water-consumption/1', {
+        method: 'GET',
+        credentials: 'include', // pour envoyer les cookies si besoin
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erreur réseau');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Générer le graphique avec les données
+        generateChart(data);
+      })
+      .catch(error => console.error('Erreur:', error));
+    }
+
+  document.getElementById('logoutButton').addEventListener('click', function() {
+    deleteCookie('token');
+    window.location.href = 'https://api.vigileak.obrulez.fr/login';
+  });
+
+  function deleteCookie(name) {
+    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; Secure; SameSite=None';
+  }
+
+  // Récupération des données dès que le contenu est chargé
+    document.addEventListener('DOMContentLoaded', fetchDataAndGenerateChart);
+</script>
+
+</body>
+</html>

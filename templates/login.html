@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion - Détection de Fuite d'Eau</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #e6f7ff; /* couleur légère pour thème de l'eau */
+    }
+    .login-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 10px; /* bordures arrondies pour le formulaire */
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2); /* ombre pour donner de la profondeur */
+      width: 300px;
+    }
+    .login-title {
+      color: #005c73;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .login-input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 5px; /* bordures arrondies pour les champs de saisie */
+      border: 1px solid #007399;
+      box-sizing: border-box; /* pour inclure padding dans la largeur */
+    }
+    .login-button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px; /* bordures arrondies pour le bouton */
+      border: none;
+      background-color: #007399;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s; /* transition pour le survol */
+    }
+    .login-button:hover {
+      background-color: #008fb3; /* couleur au survol */
+    }
+  </style>
+</head>
+
+<body>
+<div class="login-container">
+  <h2 class="login-title">Connexion</h2>
+  <form id="loginForm"> <!-- Ajoutez l'ID ici -->
+    <input type="text" id="username" class="login-input" placeholder="Nom d'utilisateur" required>
+    <input type="password" id="password" class="login-input" placeholder="Mot de passe" required>
+    <button type="submit" class="login-button">Se connecter</button>
+  </form>
+</div>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var username = document.getElementById('username').value;
+    var password = document.getElementById('password').value;
+
+    fetch('https://api.vigileak.obrulez.fr/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Échec de la connexion');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.token) {
+          setCookie('token', data.token, 1); // Stocker le token dans un cookie pour 1 jour
+          setCookie('username', username, 1); // Stocker le nom d'utilisateur dans un cookie pour 1 jour
+          //getDashboardData()
+          window.location.href = "https://api.vigileak.obrulez.fr/dashboard"
+        } else {
+          alert('Échec de la connexion');
+        }
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur de connexion');
+      });
+  });
+
+
+
+  function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+      var date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/; Secure; SameSite=None";
+  }
+
+  function getDashboardData() {
+    fetch('https://api.vigileak.obrulez.fr/dashboard', {
+      method: 'GET',
+      credentials: 'include', // S'assurer que les cookies sont inclus dans la requête
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Échec de la récupération des données du tableau de bord');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Traiter les données du tableau de bord ici
+        console.log('Données du tableau de bord:', data);
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+      });
+  }
+
+  function validateTokenWithServer() {
+    // Cette fonction peut être ajustée en fonction de la façon dont vous voulez utiliser les cookies.
+    // Par exemple, envoyer une requête au serveur pour valider le token.
+    console.log('Validation du token avec le serveur (ajuster en fonction de vos besoins)');
+  }
+</script>
+
+</body>
+</html>
