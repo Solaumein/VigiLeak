@@ -3,6 +3,7 @@ param (
     [string]$commitMessage
 )
 
+echo -----------------------GIT----------------------------
 
 Import-Module -Name Posh-SSH
 
@@ -29,7 +30,9 @@ function Commit-And-Push($commitMessage) {
 # Call the function with your commit message
 Commit-And-Push $commitMessage
 
+echo -----------------------FIN-GIT----------------------------
 
+echo -----------------------FTP----------------------------
 # Upload files to FTP server
 $ftpServer = "10.8.0.10"
 $userName = "waterleak"
@@ -56,6 +59,9 @@ foreach ($file in $files) {
 
 Write-Host "Files uploaded successfully!"
 
+echo -----------------------FIN-FTP----------------------------
+
+echo -----------------------SSH--------------------------------
 # SSH into remote Ubuntu server and replace IP address in files
 $remoteServer = "10.8.0.10"
 $userName = "waterleak"
